@@ -1,0 +1,572 @@
+/**
+ * @name Float
+ * @description A practical compact mobile Discord: the channel list and member list collapse to icon strips that slide open on hover, pushing the rest of the app aside, plus window-width presets. Port of maenDisease's archived Float for the 2025 Discord UI; works on top of system24/midnight.
+ * @author maenDisease (original Float), ported to Vencord by v1ol3tr0se
+ * @version 2.1.0
+ * @source https://github.com/maenDisease/Float
+ */
+:root {
+	--float-animations: 1;
+
+	--guildicon-size: 48;
+	--guildlist-collapse: 0;
+
+	--slide-window-on-hover: 1;
+	--float-sidebar-width: 42;
+	--sidebar-hover-width: 0px;
+	--sidebar-hover-delay: 0s;
+	--sidebar-transition-duration: 0.4s;
+
+	--slide-window-on-members-hover: 1;
+	--float-members-width: 60px;
+	--members-hover-width: 240px;
+	--members-hover-delay: 0s;
+	--members-transition-duration: 0.4s;
+
+	--topic-opacity: 1;
+	--toolbar-visibility: flex;
+
+	--textarea-buttons-gif: flex;
+	--textarea-buttons-sticker: flex;
+	--textarea-buttons-gift: none;
+}
+
+@media (max-width: 700px) {
+	:root {
+		--topic-opacity: 0;
+		--toolbar-visibility: none;
+		--textarea-buttons-gif: none;
+		--textarea-buttons-sticker: none;
+	}
+}
+
+@media (max-width: 500px) {
+	:root {
+		--guildicon-size: 40;
+		--float-members-width: 0px;
+	}
+}
+
+@media (max-width: 400px) {
+	:root {
+		--float-sidebar-width: 0;
+	}
+}
+
+@media (max-width: 300px) {
+	:root {
+		--guildlist-collapse: 1;
+	}
+}
+
+@media (max-width: 500px) {
+	:root {
+		--guildbar-avatar-size: round(calc(var(--guildicon-size) * 40px / 48), 1px);
+		--guildbar-folder-size: calc(var(--guildbar-avatar-size) + 8px);
+	}
+
+	[class*=" guilds_"] foreignObject [data-list-item-id^="guildsnav___"] {
+		margin: calc(50% - var(--guildbar-avatar-size) / 2) auto 0;
+	}
+}
+
+@media (max-width: 1300px) {
+	.sidebar__5e434:not(.channelListHidden__5e434) .wrapper_ef3116 {
+		margin-bottom: 0;
+	}
+
+	.base__5e434:has(> .content__5e434 > .sidebar__5e434 > .sidebarList__5e434) {
+		--float-bw: var(--border-thickness, 1px);
+		--float-gap: var(--gap, 0px);
+		--float-sb-on: sign(var(--float-sidebar-width));
+		--float-sb-closed: calc(var(--float-sidebar-width) * 1px);
+		--float-gl-w: var(--custom-guild-list-width);
+
+		--float-sb-want: calc(
+			var(--sidebar-hover-width) +
+			(1 - sign(var(--sidebar-hover-width))) *
+			(var(--custom-guild-sidebar-width, 312px) - var(--float-gl-w))
+		);
+		--float-sb-max: min(var(--float-sb-want), 100vw - var(--float-gl-w) - 3 * var(--float-gap));
+		--float-sb-peek: calc((1 - var(--float-sb-on)) * (var(--float-sb-max) - var(--float-sb-closed)));
+		--float-gl-push: calc(var(--guildlist-collapse) * (var(--float-gl-w) + var(--float-gap)));
+		--float-page-peek: calc(
+			var(--slide-window-on-hover) *
+			(var(--float-gl-push) + (1 - var(--float-sb-on)) * (var(--float-sb-max) + var(--float-gap)))
+		);
+		--float-page-open: calc(
+			var(--slide-window-on-hover) *
+			(
+				var(--float-gl-push) +
+				var(--float-sb-max) -
+				var(--float-sb-closed) +
+				(1 - var(--float-sb-on)) *
+				var(--float-gap)
+			)
+		);
+		--float-m-on: sign(var(--float-members-width));
+		--float-m-push: calc(
+			var(--slide-window-on-members-hover) *
+			(var(--members-hover-width) - var(--float-members-width))
+		);
+		--float-p-max: max(var(--members-hover-width), 300px);
+		--float-p-push: calc(var(--slide-window-on-members-hover) * (var(--float-p-max) - var(--float-members-width)));
+
+		transition: margin calc(var(--members-transition-duration) * var(--float-animations)) ease;
+
+		&:has(aside.membersWrap_c8ffbb:hover) {
+			margin-inline-start: calc(-1 * var(--float-m-push));
+			transition-delay: var(--members-hover-delay);
+		}
+
+		&:has(.user-profile-sidebar:hover) {
+			margin-inline-start: calc(-1 * var(--float-p-push));
+			transition-delay: var(--members-hover-delay);
+		}
+	}
+
+	.sidebar__5e434:not(.channelListHidden__5e434) {
+		overflow: visible !important;
+		margin-inline-end: calc(var(--float-sb-on) * var(--float-gap));
+
+		&::before {
+			content: "";
+			position: absolute;
+			z-index: 1001;
+			inset-block: 0;
+			inset-inline-start: calc(-1 * var(--float-gap));
+			width: calc(var(--guildlist-collapse) * max(10px, var(--float-gap)));
+		}
+
+		&:hover::before {
+			width: calc(var(--guildlist-collapse) * max(10px, var(--float-gap)) + var(--float-gl-push));
+		}
+
+		> :is(.guilds__5e434, .sidebarList__5e434, .panels__5e434) {
+			z-index: 1001;
+			overflow-x: clip !important;
+		}
+
+		> .guilds__5e434 {
+			width: calc(var(--float-gl-w) * (1 - var(--guildlist-collapse)));
+			border-inline-width: calc((1 - var(--guildlist-collapse)) * var(--float-bw));
+			margin-inline-end: calc((1 - var(--guildlist-collapse)) * var(--float-gap));
+			box-shadow: 0 0 0 calc((1 - var(--guildlist-collapse)) * var(--float-gap)) var(--background-base-low);
+			transition:
+				width calc(var(--sidebar-transition-duration) * var(--float-animations)) ease,
+				margin calc(var(--sidebar-transition-duration) * var(--float-animations)) ease,
+				border-width calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+		}
+
+		&:hover > .guilds__5e434 {
+			width: var(--float-gl-w);
+			border-inline-width: var(--float-bw);
+			margin-inline-end: calc(
+				(1 - var(--guildlist-collapse)) *
+				var(--float-gap) -
+				var(--guildlist-collapse) *
+				var(--float-gl-w)
+			);
+			box-shadow: 0 0 0 var(--float-gap) var(--background-base-low);
+		}
+
+		> :is(.sidebarList__5e434, .panels__5e434) {
+			width: var(--float-sb-closed);
+			border-inline-width: calc(var(--float-sb-on) * var(--float-bw));
+
+			box-shadow: 0 0 0 calc(var(--float-sb-on) * var(--float-gap)) var(--background-base-low);
+			transition:
+				width calc(var(--sidebar-transition-duration) * var(--float-animations)) ease,
+				margin calc(var(--sidebar-transition-duration) * var(--float-animations)) ease,
+				border-width calc(var(--sidebar-transition-duration) * var(--float-animations)) ease,
+				left calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+
+			> * {
+				width: calc(var(--float-sb-max) - 2 * var(--float-bw));
+			}
+		}
+
+		&:hover > :is(.sidebarList__5e434, .panels__5e434) {
+			width: calc(var(--float-sb-closed) + var(--float-sb-peek));
+			border-inline-width: var(--float-bw);
+			box-shadow: 0 0 0 var(--float-gap) var(--background-base-low);
+			transition-delay:
+				calc((1 - var(--float-sb-on)) * var(--sidebar-hover-delay)),
+				calc((1 - var(--float-sb-on)) * var(--sidebar-hover-delay)),
+				calc((1 - var(--float-sb-on)) * var(--sidebar-hover-delay)), 0s;
+		}
+
+		&:hover > .sidebarList__5e434 {
+			left: var(--float-gl-push);
+			margin-inline-end: calc(-1 * var(--float-sb-peek));
+		}
+
+		&:hover > .panels__5e434 {
+			left: calc(100% - var(--float-sb-closed) + var(--float-gl-push));
+		}
+
+		&:has(> :is(.sidebarList__5e434, .panels__5e434):hover) {
+			> :is(.sidebarList__5e434, .panels__5e434) {
+				width: var(--float-sb-max);
+				transition-delay: var(--sidebar-hover-delay), var(--sidebar-hover-delay), var(--sidebar-hover-delay), 0s;
+			}
+
+			> .sidebarList__5e434 {
+				margin-inline-end: calc(var(--float-sb-closed) - var(--float-sb-max));
+			}
+		}
+
+		> .sidebarList__5e434 {
+			container-type: normal;
+			position: relative;
+			left: 0;
+
+			&::before {
+				content: "";
+				position: absolute;
+				inset-inline: 0;
+				top: 100%;
+				height: calc(var(--float-gap) + 2 * var(--float-bw));
+			}
+		}
+
+		> .panels__5e434 {
+			left: calc(100% - var(--float-sb-closed));
+			right: auto;
+		}
+
+		> .sidebarResizeHandle__5e434 {
+			display: none;
+		}
+
+		> .sidebarList__5e434 {
+			> .container__2637a > .scroller__629e4,
+			.guildDropdown_f37cb1,
+			.searchBar_e6b769 > .button_a22cb0 {
+				clip-path: inset(0 calc(var(--float-sb-on) * (100% - 38px)) 0 0);
+				transition: clip-path calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+			}
+
+			.guildDropdown_f37cb1 {
+				clip-path: inset(0 calc(var(--float-sb-on) * (100% - 32px)) 0 0 round 8px);
+			}
+
+			.searchBar_e6b769 > .button_a22cb0 {
+				clip-path: inset(0 calc(var(--float-sb-on) * (100% - 30px)) 0 0 round 8px);
+			}
+
+			.privateChannels_e6b769 > .scroller__99e7c > .content_d125d2 {
+				translate: calc(var(--float-sb-on) * -9px) 0;
+				transition: translate calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+			}
+
+			.privateChannels_e6b769 .linkButton__972a0 > .link__972a0 {
+				translate: calc(var(--float-sb-on) * 6px) 0;
+				transition: translate calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+			}
+		}
+
+		&:has(> :is(.sidebarList__5e434, .panels__5e434):hover) > .sidebarList__5e434 {
+			> .container__2637a > .scroller__629e4 {
+				clip-path: inset(0);
+				transition-delay: var(--sidebar-hover-delay);
+			}
+
+			.guildDropdown_f37cb1,
+			.searchBar_e6b769 > .button_a22cb0 {
+				clip-path: inset(0 round 8px);
+				transition-delay: var(--sidebar-hover-delay);
+			}
+
+			.privateChannels_e6b769 > .scroller__99e7c > .content_d125d2,
+			.privateChannels_e6b769 .linkButton__972a0 > .link__972a0 {
+				translate: 0 0;
+				transition-delay: var(--sidebar-hover-delay);
+			}
+		}
+	}
+
+	.mainContent__29444 > .icon__29444 {
+		order: -1;
+		margin-inline: 4px 6px;
+	}
+
+	.list_c3cd7d.list__07f91 {
+		padding-inline-start: 6px;
+	}
+
+	.list_c3cd7d.listCollapse__07f91 {
+		padding-inline-start: 14px;
+	}
+
+	.list_c3cd7d.listDefault__07f91 .content__07f91 {
+		padding-inline-start: 4px;
+	}
+
+	.guildDropdown_f37cb1:not(:has(> .guildBadgeAndName_f37cb1 > .guildIconV2Container__85d16)) > .headerChildren_f37cb1 {
+		order: -1;
+		margin-inline: 2px 6px;
+	}
+
+	.privateChannelsHeaderContainer__99e7c {
+		position: relative;
+		padding-inline-start: 58px;
+
+		.privateChannelRecipientsInviteButtonIconContainer__99e7c:not(.moreButton__99e7c) {
+			position: absolute;
+			inset-inline-start: 22px;
+		}
+	}
+
+	.searchBar_e6b769 > .button_a22cb0 > .buttonChildrenWrapper_a22cb0 {
+		justify-content: flex-start;
+		padding-inline-start: 32px;
+
+		&::before {
+			content: "";
+			position: absolute;
+			inset-inline-start: 4.25px;
+			width: 20px;
+			height: 20px;
+			background: currentColor;
+			mask:
+				url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15.62 17.03a9 9 0 1 1 1.41-1.41l4.68 4.67a1 1 0 0 1-1.42 1.42l-4.67-4.68ZM17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z'/%3E%3C/svg%3E")
+				center / contain no-repeat;
+		}
+	}
+
+	.panels__5e434 > .container__37e49 {
+		padding-inline-start: 5.25px;
+	}
+
+	.content__5e434 > .page__5e434 {
+		transition: translate calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+	}
+
+	.content__5e434:has(> .sidebar__5e434:hover) > .page__5e434 {
+		translate: var(--float-page-peek) 0;
+		transition-delay: calc((1 - var(--float-sb-on)) * var(--sidebar-hover-delay));
+	}
+
+	.content__5e434:has(> .sidebar__5e434 > :is(.sidebarList__5e434, .panels__5e434):hover) > .page__5e434 {
+		translate: var(--float-page-open) 0;
+		transition-delay: var(--sidebar-hover-delay);
+	}
+
+	@container body style(--top-bar-button-position: titlebar) {
+		.base__5e434 > .bar_c38106 > .trailing_c38106 {
+			transition: translate calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+		}
+
+		.base__5e434:has(> .content__5e434 > .sidebar__5e434:hover) > .bar_c38106 > .trailing_c38106 {
+			translate: var(--float-page-peek) 0;
+			transition-delay: calc((1 - var(--float-sb-on)) * var(--sidebar-hover-delay));
+		}
+
+		.base__5e434:has(> .content__5e434 > .sidebar__5e434 > :is(.sidebarList__5e434, .panels__5e434):hover)
+			> .bar_c38106
+			> .trailing_c38106 {
+			translate: var(--float-page-open) 0;
+			transition-delay: var(--sidebar-hover-delay);
+		}
+	}
+
+	.content_f75fb0 > :is(.container_c8ffbb, aside.membersWrap_c8ffbb, aside:has(> .user-profile-sidebar)) {
+		flex: none;
+		position: relative;
+		z-index: 3;
+		min-width: 0 !important;
+		width: var(--float-members-width);
+		margin-inline-start: calc(var(--float-m-on) * var(--gap, 0px));
+		border-inline-width: calc(var(--float-m-on) * var(--border-thickness, 0px));
+		overflow-x: clip !important;
+		transition:
+			width calc(var(--members-transition-duration) * var(--float-animations)) ease,
+			margin calc(var(--members-transition-duration) * var(--float-animations)) ease,
+			box-shadow calc(0.2s * var(--float-animations)) ease;
+
+		--custom-member-list-width: calc(var(--members-hover-width) - 2 * var(--border-thickness, 0px));
+
+		> :is(.membersWrap_c8ffbb, .members_c8ffbb, .user-profile-sidebar) {
+			flex: none;
+		}
+
+		&:hover {
+			width: var(--members-hover-width);
+
+			margin-inline-start: calc(
+				var(--float-m-on) *
+				var(--gap, 0px) +
+				(1 - var(--slide-window-on-members-hover)) *
+				(var(--float-members-width) - var(--members-hover-width))
+			);
+			border-inline-width: var(--border-thickness, 0px);
+			box-shadow: 0 8px 24px rgb(0 0 0 / calc((1 - var(--slide-window-on-members-hover)) * 0.5));
+			transition-delay: var(--members-hover-delay), var(--members-hover-delay), 0s;
+		}
+
+		&:has(> .user-profile-sidebar) {
+			--custom-member-list-width: calc(var(--float-p-max) - 2 * var(--border-thickness, 0px));
+			justify-content: flex-start;
+
+			> .user-profile-sidebar {
+				margin-inline-start: 0;
+			}
+
+			&:hover {
+				width: var(--float-p-max);
+				margin-inline-start: calc(
+					var(--float-m-on) *
+					var(--gap, 0px) +
+					(1 - var(--slide-window-on-members-hover)) *
+					(var(--float-members-width) - var(--float-p-max))
+				);
+			}
+		}
+
+		.members_c8ffbb {
+			clip-path: inset(0 calc(var(--float-m-on) * (100% - 52px)) 0 0);
+			transition: clip-path calc(var(--members-transition-duration) * var(--float-animations)) ease;
+		}
+
+		&:hover .members_c8ffbb {
+			clip-path: inset(0);
+			transition-delay: var(--members-hover-delay);
+		}
+	}
+
+	.membersGroupHeader_c8ffbb > span:last-child {
+		order: -1;
+		flex: none;
+		width: max-content;
+		min-width: 32px;
+		margin-inline: 2px 12px;
+		text-align: center;
+		translate: calc((32px - 100%) / 2) 0;
+		word-spacing: -100%;
+
+		&::first-letter {
+			font-size: 0;
+		}
+	}
+
+	[class^="upperContainer_"]
+		> [class^="children_"]
+		> :is([class^="topic_"], svg:has(+ [class^="topic_"]), [class^="dmHeaderActivity"]) {
+		opacity: var(--topic-opacity);
+	}
+
+	[class^="upperContainer_"] > [class^="toolbar_"] {
+		> [class*="iconWrapper_"]:not(:nth-last-child(-n + 2), [class*=" selected_"]) {
+			display: var(--toolbar-visibility);
+		}
+
+		&:hover {
+			--toolbar-visibility: flex;
+		}
+	}
+
+	[class^="channelTextArea_"] [class^="inner_"] {
+		flex-wrap: wrap;
+
+		> [class*="textArea_"] {
+			flex: 1 0 10ch;
+		}
+
+		> [class^="buttons_"] {
+			margin-inline-start: auto;
+		}
+	}
+
+	[class^="channelTextArea_"] [class^="buttons_"] {
+		> :has(> [aria-label="Open GIF picker"]) {
+			display: var(--textarea-buttons-gif);
+		}
+
+		> :has(> [class*="stickerButton_"]) {
+			display: var(--textarea-buttons-sticker);
+		}
+
+		> :has(> [aria-label="Send a gift"]) {
+			display: var(--textarea-buttons-gift);
+		}
+	}
+
+	[class*=" cozy_"] :is(h2, h3)[class^="header_"] {
+		display: flex;
+		align-items: baseline;
+		white-space: nowrap;
+
+		> [class^="headerText_"] {
+			display: flex;
+			align-items: baseline;
+			min-width: 0;
+
+			> * {
+				flex: 0 4 auto;
+				min-width: 0;
+				overflow: clip;
+			}
+
+			* {
+				white-space: nowrap;
+			}
+
+			> [class^="username_"] {
+				flex-shrink: 1;
+				text-overflow: ellipsis;
+			}
+		}
+
+		> [class^="timestamp_"] {
+			flex: none;
+		}
+	}
+
+	[class^="searchResultsWrap_"] {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-end: 0;
+		max-width: 100%;
+		z-index: 3;
+		box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+	}
+
+	.layer__59d0d:has(> [role="dialog"][aria-label="Inbox"]) {
+		left: auto !important;
+		right: var(--gap, 8px) !important;
+
+		> [role="dialog"] > .container__8cb2e {
+			min-width: min(480px, 100vw - 2 * var(--gap, 8px));
+		}
+	}
+
+	@media (max-width: 485px) {
+		[class*="carouselModal_"] [class^="actionButtons_"] {
+			position: absolute;
+			inset-inline: 0;
+			bottom: 0;
+			width: fit-content;
+			max-width: 100%;
+			margin-inline: auto;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+	}
+
+	.chatLayerWrapper__01ae2:has(> .floating__01ae2) {
+		inset-inline-start: 0;
+		pointer-events: none;
+
+		> :is(.floating__01ae2, .resizeHandle__01ae2) {
+			max-width: 100%;
+			pointer-events: auto;
+		}
+	}
+
+	div:has(> [data-list-id^="forum-channel-list"]),
+	div[data-list-id^="forum-channel-list"] > div:first-child,
+	[data-list-id^="forum-channel-list"] [class*=" headerRow_"] {
+		min-width: 0;
+	}
+}
