@@ -59,18 +59,18 @@
 	}
 }
 
-@media (max-width: 500px) {
+@media (max-width: 1300px) {
 	:root {
+		--float-sb-dur: calc(var(--sidebar-transition-duration) * var(--float-animations));
+		--float-m-dur: calc(var(--members-transition-duration) * var(--float-animations));
 		--guildbar-avatar-size: round(calc(var(--guildicon-size) * 40px / 48), 1px);
 		--guildbar-folder-size: calc(var(--guildbar-avatar-size) + 8px);
 	}
 
-	[class*=" guilds_"] foreignObject [data-list-item-id^="guildsnav___"] {
+	.guilds__5e434 foreignObject [data-list-item-id^="guildsnav___"] {
 		margin: calc(50% - var(--guildbar-avatar-size) / 2) auto 0;
 	}
-}
 
-@media (max-width: 1300px) {
 	.sidebar__5e434:not(.channelListHidden__5e434) .wrapper_ef3116 {
 		margin-bottom: 0;
 	}
@@ -112,7 +112,7 @@
 		--float-p-max: max(var(--members-hover-width), 300px);
 		--float-p-push: calc(var(--slide-window-on-members-hover) * (var(--float-p-max) - var(--float-members-width)));
 
-		transition: margin calc(var(--members-transition-duration) * var(--float-animations)) ease;
+		transition: margin var(--float-m-dur) ease;
 
 		&:has(aside.membersWrap_c8ffbb:hover) {
 			margin-inline-start: calc(-1 * var(--float-m-push));
@@ -153,9 +153,9 @@
 			margin-inline-end: calc((1 - var(--guildlist-collapse)) * var(--float-gap));
 			box-shadow: 0 0 0 calc((1 - var(--guildlist-collapse)) * var(--float-gap)) var(--background-base-low);
 			transition:
-				width calc(var(--sidebar-transition-duration) * var(--float-animations)) ease,
-				margin calc(var(--sidebar-transition-duration) * var(--float-animations)) ease,
-				border-width calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+				width var(--float-sb-dur) ease,
+				margin var(--float-sb-dur) ease,
+				border-width var(--float-sb-dur) ease;
 		}
 
 		&:hover > .guilds__5e434 {
@@ -176,10 +176,10 @@
 
 			box-shadow: 0 0 0 calc(var(--float-sb-on) * var(--float-gap)) var(--background-base-low);
 			transition:
-				width calc(var(--sidebar-transition-duration) * var(--float-animations)) ease,
-				margin calc(var(--sidebar-transition-duration) * var(--float-animations)) ease,
-				border-width calc(var(--sidebar-transition-duration) * var(--float-animations)) ease,
-				left calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+				width var(--float-sb-dur) ease,
+				margin var(--float-sb-dur) ease,
+				border-width var(--float-sb-dur) ease,
+				left var(--float-sb-dur) ease;
 
 			> * {
 				width: calc(var(--float-sb-max) - 2 * var(--float-bw));
@@ -228,23 +228,12 @@
 				top: 100%;
 				height: calc(var(--float-gap) + 2 * var(--float-bw));
 			}
-		}
 
-		> .panels__5e434 {
-			left: calc(100% - var(--float-sb-closed));
-			right: auto;
-		}
-
-		> .sidebarResizeHandle__5e434 {
-			display: none;
-		}
-
-		> .sidebarList__5e434 {
 			> .container__2637a > .scroller__629e4,
 			.guildDropdown_f37cb1,
 			.searchBar_e6b769 > .button_a22cb0 {
 				clip-path: inset(0 calc(var(--float-sb-on) * (100% - 38px)) 0 0);
-				transition: clip-path calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+				transition: clip-path var(--float-sb-dur) ease;
 			}
 
 			.guildDropdown_f37cb1 {
@@ -257,13 +246,22 @@
 
 			.privateChannels_e6b769 > .scroller__99e7c > .content_d125d2 {
 				translate: calc(var(--float-sb-on) * -9px) 0;
-				transition: translate calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+				transition: translate var(--float-sb-dur) ease;
 			}
 
 			.privateChannels_e6b769 .linkButton__972a0 > .link__972a0 {
 				translate: calc(var(--float-sb-on) * 6px) 0;
-				transition: translate calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+				transition: translate var(--float-sb-dur) ease;
 			}
+		}
+
+		> .panels__5e434 {
+			left: calc(100% - var(--float-sb-closed));
+			right: auto;
+		}
+
+		> .sidebarResizeHandle__5e434 {
+			display: none;
 		}
 
 		&:has(> :is(.sidebarList__5e434, .panels__5e434):hover) > .sidebarList__5e434 {
@@ -340,7 +338,7 @@
 	}
 
 	.content__5e434 > .page__5e434 {
-		transition: translate calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+		transition: translate var(--float-sb-dur) ease;
 	}
 
 	.content__5e434:has(> .sidebar__5e434:hover) > .page__5e434 {
@@ -355,7 +353,7 @@
 
 	@container body style(--top-bar-button-position: titlebar) {
 		.base__5e434 > .bar_c38106 > .trailing_c38106 {
-			transition: translate calc(var(--sidebar-transition-duration) * var(--float-animations)) ease;
+			transition: translate var(--float-sb-dur) ease;
 		}
 
 		.base__5e434:has(> .content__5e434 > .sidebar__5e434:hover) > .bar_c38106 > .trailing_c38106 {
@@ -381,8 +379,8 @@
 		border-inline-width: calc(var(--float-m-on) * var(--border-thickness, 0px));
 		overflow-x: clip !important;
 		transition:
-			width calc(var(--members-transition-duration) * var(--float-animations)) ease,
-			margin calc(var(--members-transition-duration) * var(--float-animations)) ease,
+			width var(--float-m-dur) ease,
+			margin var(--float-m-dur) ease,
 			box-shadow calc(0.2s * var(--float-animations)) ease;
 
 		--custom-member-list-width: calc(var(--members-hover-width) - 2 * var(--border-thickness, 0px));
@@ -426,7 +424,7 @@
 
 		.members_c8ffbb {
 			clip-path: inset(0 calc(var(--float-m-on) * (100% - 52px)) 0 0);
-			transition: clip-path calc(var(--members-transition-duration) * var(--float-animations)) ease;
+			transition: clip-path var(--float-m-dur) ease;
 		}
 
 		&:hover .members_c8ffbb {
