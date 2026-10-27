@@ -2,21 +2,28 @@ name: check
 
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - name: Biome
-        run: npx --yes @biomejs/biome@2.6.3 ci
-      - name: Vencord meta header
-        run: |
-          header=$(sed -n '1,/\*\//p' float.theme.css)
-          for tag in name author version description; do
-            grep -qE "^ \* @$tag \S" <<< "$header" || { echo "missing @$tag in the meta header"; exit 1; }
-          done
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: yarn verify
