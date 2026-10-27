@@ -44,7 +44,7 @@ the `@media` blocks under that are the width presets, change them or delete them
 ### heads up
 float only turns on when discord is 1300px wide or less (like half a 1080p screen). if you want it at a different size change the `1300px` in `@media (max-width: 1300px)`
 
-it uses discord's exact class names because it's way faster than the `[class^=...]` way. the bad part is when discord changes them float breaks until i update it. midnight and system24 break at the same time though so at least you'll know it's not just me
+the sliding parts use discord's exact class names because it's way faster than the `[class^=...]` way, a few of the small fixes (header, message box, search and such) still go by prefix. the bad part is when discord changes them float breaks until i update it. midnight and system24 break at the same time though so at least you'll know it's not just me
 
 the gif / gift buttons are matched by their text, so those only work if your discord is in english
 
